@@ -24,8 +24,14 @@ detect_osversion() {
         case "$ID" in
             ubuntu)
                 case "$VERSION_CODENAME" in
+<<<<<<< HEAD
                     bionic) osversion="ubuntu/bionic";;
                     focal) osversion="ubuntu/focal";;
+=======
+                    bionic) osdir="ubuntu/bionic";;
+                    focal) osdir="ubuntu/focal";;
+                    jammy) osdir="ubuntu/focal";;
+>>>>>>> 546bce3b (build)
                     # Add new versions as needed
                 esac
                 ;;
