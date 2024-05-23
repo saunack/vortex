@@ -86,6 +86,8 @@
 `define INST_R          7'b0110011 // register instructions
 `define INST_FENCE      7'b0001111 // Fence instructions
 `define INST_SYS        7'b1110011 // system instructions
+`define INST_AMO_L       7'b1000000 // AMO instructions
+`define INST_AMO_S       7'b1100000 // AMO instructions
 
 // RV64I instruction specific opcodes (for any W instruction)
 `define INST_I_W        7'b0011011 // W type immediate instructions
@@ -244,6 +246,8 @@
 `define INST_SFU_IS_WCTL(op) (op <= 5)
 `define INST_SFU_IS_CSR(op)  (op >= 6 && op <= 8)
 
+`define INST_AMO_LR          4'b0000 // atomic load linked
+`define INST_AMO_SC          4'b0001 // atomic store conditional
 ///////////////////////////////////////////////////////////////////////////////
 
 `define ARB_SEL_BITS(I, O)  ((I > O) ? `CLOG2(`CDIV(I, O)) : 0)

@@ -138,6 +138,8 @@ task trace_ex_op(input int level,
                 `INST_LSU_LD: `TRACE(level, ("FLD"));
                 `INST_LSU_SW: `TRACE(level, ("FSW"));
                 `INST_LSU_SD: `TRACE(level, ("FSD"));
+                `INST_AMO_LR: `TRACE(level, ("FLL"));
+                `INST_AMO_SC: `TRACE(level, ("FSC"));
                 default:      `TRACE(level, ("?"));
             endcase
         end else begin
@@ -154,6 +156,8 @@ task trace_ex_op(input int level,
                 `INST_LSU_SW: `TRACE(level, ("SW"));
                 `INST_LSU_SD: `TRACE(level, ("SD"));
                 `INST_LSU_FENCE:`TRACE(level,("FENCE"));
+                `INST_AMO_LR: `TRACE(level, ("LL"));
+                `INST_AMO_SC: `TRACE(level, ("SC"));
                 default:      `TRACE(level, ("?"));
             endcase
         end
