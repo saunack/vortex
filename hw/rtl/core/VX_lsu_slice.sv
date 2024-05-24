@@ -77,7 +77,6 @@ module VX_lsu_slice import VX_gpu_pkg::*; #(
         // is local memory address
         wire [MEM_ADDRW-1:0] lmem_addr_start = MEM_ADDRW'(`XLEN'(`LMEM_BASE_ADDR) >> MEM_ASHIFT);
         wire [MEM_ADDRW-1:0] lmem_addr_end = MEM_ADDRW'((`XLEN'(`LMEM_BASE_ADDR) + `XLEN'(1 << `LMEM_LOG_SIZE)) >> MEM_ASHIFT);
-<<<<<<< HEAD
         assign mem_req_atype[i][`ADDR_TYPE_LOCAL] = (block_addr >= lmem_addr_start) && (block_addr < lmem_addr_end);  
         // is AMO address
         // TODO: implement correct op_type
@@ -85,9 +84,6 @@ module VX_lsu_slice import VX_gpu_pkg::*; #(
         // if (data.op_type == `AMO) begin
         //     assign mem_req_atype[i][`ADDR_TYPE_AMO] = 1;
         // end
-=======
-        assign mem_req_atype[i][`ADDR_TYPE_LOCAL] = (block_addr >= lmem_addr_start) && (block_addr < lmem_addr_end);
->>>>>>> develop
     `endif
     end
 
