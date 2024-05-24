@@ -1395,6 +1395,50 @@ void Emulator::execute(const Instr &instr, uint32_t wid, instr_trace_t *trace) {
         std::abort();
       }
     } break;
+    case 1:
+      switch (func3) {
+      case 0: { // DOT8
+        trace->fu_type = FUType::ALU;
+        trace->alu_type = AluType::DOT8;
+        trace->used_iregs.set(rsrc0);
+        trace->used_iregs.set(rsrc1);
+        for (uint32_t t = thread_start; t < num_threads; ++t) {
+          if (!warp.tmask.test(t))
+            continue;
+          uint32_t a = rsdata[t][0].i;
+          uint32_t b = rsdata[t][1].i;
+
+          // TODO:
+          // break integers into int8
+          // int8_t a0 = static_cast<int8_t>((a >> 24) & 0xFF);
+          // int8_t a1 = static_cast<int8_t>((a >> 16) & 0xFF);
+          // int8_t a2 = static_cast<int8_t>((a >> 8) & 0xFF);
+          // int8_t a3 = static_cast<int8_t>(a & 0xFF);
+          // int8_t b0 = static_cast<int8_t>((b >> 24) & 0xFF);
+          // int8_t b1 = static_cast<int8_t>((b >> 16) & 0xFF);
+          // int8_t b2 = static_cast<int8_t>((b >> 8) & 0xFF);
+          // int8_t b3 = static_cast<int8_t>(b & 0xFF);
+
+          // int c = a0 * b0 + a1 * b1 + a2 * b2 + a3 * b3;
+          int a0 = (a >> 0) & 0xff;
+          int a1 = (a >> 8) & 0xff;
+          int a2 = (a >> 16) & 0xff;
+          int a3 = (a >> 24) & 0xff;
+
+          int b0 = (b >> 0) & 0xff;
+          int b1 = (b >> 8) & 0xff;
+          int b2 = (b >> 16) & 0xff;
+          int b3 = (b >> 24) & 0xff;
+
+          int c = a0 * b0 + a1 * b1 + a2 * b2 + a3 * b3;
+          rddata[t].i = c;
+        }
+        rd_write = true;
+      } break;
+      default:
+          std::abort();
+      }
+      break;
     default:
       std::abort();
     }
