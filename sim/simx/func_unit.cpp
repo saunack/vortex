@@ -264,8 +264,7 @@ void SfuUnit::tick() {
 			output.push(trace, 1);
 			if (trace->eop) {
 				auto trace_data = std::dynamic_pointer_cast<SFUTraceData>(trace->data);
-				core_->wspawn(trace_data->arg1, trace_data->arg2);
-				release_warp = false;
+				release_warp = core_->wspawn(trace_data->arg1, trace_data->arg2);
 			}
 			break;
 		case SfuType::TMC:
@@ -281,13 +280,9 @@ void SfuUnit::tick() {
 			output.push(trace, 1);
 			if (trace->eop) {
 				auto trace_data = std::dynamic_pointer_cast<SFUTraceData>(trace->data);
-				core_->barrier(trace_data->arg1, trace_data->arg2, trace->wid);
-				release_warp = false;
+				release_warp = core_->barrier(trace_data->arg1, trace_data->arg2, trace->wid);
 			}
 		} break;
-		case SfuType::CMOV:
-			output.push(trace, 3);
-			break;
 		default:
 			std::abort();
 		}
