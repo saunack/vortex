@@ -163,7 +163,8 @@ module VX_cache import VX_gpu_pkg::*; #(
         .ready_out (mem_bus_if.req_ready)
     );
     
-    assign mem_bus_if.req_data.atype = '0;
+    assign req_data_amo = mem_bus_if.req_data.atype
+    // assign mem_bus_if.req_data.atype = '0;
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -216,6 +217,7 @@ module VX_cache import VX_gpu_pkg::*; #(
     wire [NUM_BANKS-1:0][WORD_SEL_WIDTH-1:0]    per_bank_core_req_wsel;
     wire [NUM_BANKS-1:0][WORD_SIZE-1:0]         per_bank_core_req_byteen;
     wire [NUM_BANKS-1:0][`CS_WORD_WIDTH-1:0]    per_bank_core_req_data;
+    wire [NUM_BANKS-1:0][`ADDR_TYPE_WIDTH-1:0]  per_bank_core_req_atype;
     wire [NUM_BANKS-1:0][TAG_WIDTH-1:0]         per_bank_core_req_tag;
     wire [NUM_BANKS-1:0][REQ_SEL_WIDTH-1:0]     per_bank_core_req_idx;
     wire [NUM_BANKS-1:0]                        per_bank_core_req_ready;
@@ -234,6 +236,7 @@ module VX_cache import VX_gpu_pkg::*; #(
     wire [NUM_BANKS-1:0][`CS_WORD_WIDTH-1:0]    per_bank_mem_req_data;
     wire [NUM_BANKS-1:0][MSHR_ADDR_WIDTH-1:0]   per_bank_mem_req_id;
     wire [NUM_BANKS-1:0]                        per_bank_mem_req_ready;
+    wire [NUM_BANKS-1:0][`ADDR_TYPE_WIDTH-1:0]  per_bank_mem_req_atype;              
 
     wire [NUM_BANKS-1:0]                        per_bank_mem_rsp_ready;
     
@@ -365,6 +368,7 @@ module VX_cache import VX_gpu_pkg::*; #(
             .core_req_wsel      (per_bank_core_req_wsel[i]),
             .core_req_byteen    (per_bank_core_req_byteen[i]),
             .core_req_data      (per_bank_core_req_data[i]),
+            .core_req_amo       (per_bank_core_req_atype[i]),
             .core_req_tag       (per_bank_core_req_tag[i]),
             .core_req_idx       (per_bank_core_req_idx[i]),
             .core_req_ready     (per_bank_core_req_ready[i]),
@@ -384,6 +388,7 @@ module VX_cache import VX_gpu_pkg::*; #(
             .mem_req_byteen     (per_bank_mem_req_byteen[i]),
             .mem_req_data       (per_bank_mem_req_data[i]),
             .mem_req_id         (per_bank_mem_req_id[i]),
+            .mem_req_atype      (per_bank_mem_req_atype[i]),
             .mem_req_ready      (per_bank_mem_req_ready[i]),
 
             // Memory response

@@ -69,10 +69,11 @@ module VX_cache_bank #(
     // Core Request
     input wire                          core_req_valid,
     input wire [`CS_LINE_ADDR_WIDTH-1:0] core_req_addr,
-    input wire                          core_req_rw,
+    input wire                          core_req_rw, // read/write
     input wire [WORD_SEL_WIDTH-1:0]     core_req_wsel,
     input wire [WORD_SIZE-1:0]          core_req_byteen,
     input wire [`CS_WORD_WIDTH-1:0]     core_req_data,
+    input wire [`ADDR_TYPE_WIDTH-1:0]   core_req_amo,
     input wire [TAG_WIDTH-1:0]          core_req_tag,
     input wire [REQ_SEL_WIDTH-1:0]      core_req_idx,
     output wire                         core_req_ready,
@@ -92,6 +93,7 @@ module VX_cache_bank #(
     output wire [WORD_SIZE-1:0]         mem_req_byteen,
     output wire [`CS_WORD_WIDTH-1:0]    mem_req_data,
     output wire [MSHR_ADDR_WIDTH-1:0]   mem_req_id,
+    output wire [`ADDR_TYPE_WIDTH-1:0]  mem_req_atype,
     input  wire                         mem_req_ready,
 
     // Memory response
@@ -239,6 +241,8 @@ module VX_cache_bank #(
 
     wire [NUM_WAYS-1:0] tag_matches_st0, tag_matches_st1;
     wire [NUM_WAYS-1:0] way_sel_st0, way_sel_st1;
+    
+    // wire is_amo = (mem_req_atype[`ADDR_TYPE_AMO] == 1);
 
     `RESET_RELAY (tag_reset, reset);
 
@@ -265,7 +269,8 @@ module VX_cache_bank #(
         .fill       (do_fill_st0),
         .init       (do_init_st0),
         .way_sel    (way_sel_st0),
-        .tag_matches(tag_matches_st0)
+        .tag_matches(tag_matches_st0),
+        .amo_reserve(is_amo)
     );
 
     assign mshr_id_st0 = is_creq_st0 ? mshr_alloc_id_st0 : replay_id_st0;

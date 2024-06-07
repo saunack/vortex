@@ -160,62 +160,6 @@
                     default:      `TRACE(level, ("?"));
                 endcase
             end
-<<<<<<< HEAD
-        end else begin
-            if (`INST_ALU_IS_W(op_mod)) begin
-                if (use_imm) begin
-                    case (`INST_ALU_BITS'(op_type))
-                        `INST_ALU_ADD: `TRACE(level, ("ADDIW"));
-                        `INST_ALU_SLL: `TRACE(level, ("SLLIW"));
-                        `INST_ALU_SRL: `TRACE(level, ("SRLIW"));
-                        `INST_ALU_SRA: `TRACE(level, ("SRAIW"));
-                        default:       `TRACE(level, ("?"));
-                    endcase
-                end else begin
-                    case (`INST_ALU_BITS'(op_type))
-                        `INST_ALU_ADD: `TRACE(level, ("ADDW"));
-                        `INST_ALU_SUB: `TRACE(level, ("SUBW"));
-                        `INST_ALU_SLL: `TRACE(level, ("SLLW"));
-                        `INST_ALU_SRL: `TRACE(level, ("SRLW"));
-                        `INST_ALU_SRA: `TRACE(level, ("SRAW"));
-                        default:       `TRACE(level, ("?"));
-                    endcase
-                end
-            end else begin
-                if (use_imm) begin
-                    case (`INST_ALU_BITS'(op_type))
-                        `INST_ALU_ADD:   `TRACE(level, ("ADDI"));
-                        `INST_ALU_SLL:   `TRACE(level, ("SLLI"));
-                        `INST_ALU_SRL:   `TRACE(level, ("SRLI"));
-                        `INST_ALU_SRA:   `TRACE(level, ("SRAI"));
-                        `INST_ALU_SLT:   `TRACE(level, ("SLTI"));
-                        `INST_ALU_SLTU:  `TRACE(level, ("SLTIU"));
-                        `INST_ALU_XOR:   `TRACE(level, ("XORI"));
-                        `INST_ALU_OR:    `TRACE(level, ("ORI"));
-                        `INST_ALU_AND:   `TRACE(level, ("ANDI"));
-                        `INST_ALU_LUI:   `TRACE(level, ("LUI"));
-                        `INST_ALU_AUIPC: `TRACE(level, ("AUIPC"));
-                        default:         `TRACE(level, ("?"));
-                    endcase
-                end else begin
-                    case (`INST_ALU_BITS'(op_type))
-                        `INST_ALU_ADD:   `TRACE(level, ("ADD"));
-                        `INST_ALU_SUB:   `TRACE(level, ("SUB"));
-                        `INST_ALU_SLL:   `TRACE(level, ("SLL"));
-                        `INST_ALU_SRL:   `TRACE(level, ("SRL"));
-                        `INST_ALU_SRA:   `TRACE(level, ("SRA"));
-                        `INST_ALU_SLT:   `TRACE(level, ("SLT"));
-                        `INST_ALU_SLTU:  `TRACE(level, ("SLTU"));
-                        `INST_ALU_XOR:   `TRACE(level, ("XOR"));
-                        `INST_ALU_OR:    `TRACE(level, ("OR"));
-                        `INST_ALU_AND:   `TRACE(level, ("AND"));
-                        `INST_ALU_DOT8:  `TRACE(level, ("DOT8"));
-                        default:         `TRACE(level, ("?"));
-                    endcase
-                end
-            end
-=======
->>>>>>> develop
         end
         `EX_FPU: begin
             case (`INST_FPU_BITS'(op_type))

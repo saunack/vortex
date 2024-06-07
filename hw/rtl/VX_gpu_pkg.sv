@@ -95,6 +95,7 @@ package VX_gpu_pkg;
         logic [($bits(alu_mod_t)-1-1-`OFFSET_BITS)-1:0] __padding;
         logic is_store;
         logic is_float;
+        logic is_amo;
         logic [`OFFSET_BITS-1:0] offset;
     } lsu_mod_t;
 

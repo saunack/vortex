@@ -147,23 +147,22 @@
 `define INST_ALU_OR          4'b1101
 `define INST_ALU_XOR         4'b1110
 `define INST_ALU_SLL         4'b1111
-<<<<<<< HEAD
-`define INST_ALU_DOT8        4'b0001
-=======
 
 
 `define ALU_TYPE_BITS        2
 `define ALU_TYPE_ARITH       0
 `define ALU_TYPE_BRANCH      1
 `define ALU_TYPE_MULDIV      2
-`define ALU_TYPE_OTHER       3
+// `define ALU_TYPE_AMO         3
 
->>>>>>> develop
 `define INST_ALU_BITS        4
 `define INST_ALU_CLASS(op)   op[3:2]
 `define INST_ALU_SIGNED(op)  op[0]
 `define INST_ALU_IS_SUB(op)  op[1]
 `define INST_ALU_IS_CZERO(op) (op[3:1] == 3'b101)
+
+`define INST_AMO_LR          4'b0000
+`define INST_AMO_SC          4'b0001
 
 `define INST_BR_EQ           4'b0000
 `define INST_BR_NE           4'b0010
@@ -207,6 +206,9 @@
 `define INST_FMT_BU          3'b100
 `define INST_FMT_HU          3'b101
 `define INST_FMT_WU          3'b110
+
+// `define INST_LSU_LR          4'b0000
+// `define INST_AMO_SC          4'b0001
 
 `define INST_LSU_LB          4'b0000
 `define INST_LSU_LH          4'b0001
@@ -306,7 +308,8 @@
 
 `define ADDR_TYPE_FLUSH         0
 `define ADDR_TYPE_IO            1
-`define ADDR_TYPE_LOCAL         2 // shoud be last since optional
+`define ADDR_TYPE_AMO           2
+`define ADDR_TYPE_LOCAL         3 // shoud be last since optional
 `define ADDR_TYPE_WIDTH         (`ADDR_TYPE_LOCAL + `LMEM_ENABLED)
 
 `define VX_MEM_BYTEEN_WIDTH     `L3_LINE_SIZE

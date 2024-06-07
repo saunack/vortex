@@ -44,14 +44,17 @@ module VX_cache_tags #(
     input wire                          fill,    
     input wire                          init,
     output wire [NUM_WAYS-1:0]          way_sel,
-    output wire [NUM_WAYS-1:0]          tag_matches
+    output wire [NUM_WAYS-1:0]          tag_matches,
+    // AMO single bit implementation
+    input wire                          amo_reserve
 );
     `UNUSED_SPARAM (INSTANCE_ID)
     `UNUSED_PARAM (BANK_ID)
     `UNUSED_VAR (reset)
     `UNUSED_VAR (lookup)
 
-    localparam TAG_WIDTH = 1 + `CS_TAG_SEL_BITS;
+    // localparam TAG_WIDTH = 1 + `CS_TAG_SEL_BITS;
+    localparam TAG_WIDTH = 1 + 1 + `CS_TAG_SEL_BITS; // extra bit for amo_reserve
 
     wire [`CS_LINE_SEL_BITS-1:0] line_sel = line_addr[`CS_LINE_SEL_BITS-1:0];
     wire [`CS_TAG_SEL_BITS-1:0] line_tag = `CS_LINE_TAG_ADDR(line_addr);
@@ -78,6 +81,7 @@ module VX_cache_tags #(
         wire [`CS_TAG_SEL_BITS-1:0] read_tag;
         wire read_valid;
 
+        // single port RAM
         VX_sp_ram #(
             .DATAW (TAG_WIDTH),
             .SIZE  (`CS_LINES_PER_BANK),
@@ -88,7 +92,7 @@ module VX_cache_tags #(
             .write (way_sel[i] || init),
             `UNUSED_PIN (wren),                
             .addr  (line_sel),
-            .wdata ({~init, line_tag}), 
+            .wdata ({~init, amo_reserve, line_tag}), 
             .rdata ({read_valid, read_tag})
         );
         
