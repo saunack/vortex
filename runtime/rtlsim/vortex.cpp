@@ -19,6 +19,8 @@
 #include <future>
 #include <list>
 #include <chrono>
+#include <unordered_map>
+#include <array>
 
 #include <vortex.h>
 #include <malloc.h>

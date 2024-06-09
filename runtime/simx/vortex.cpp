@@ -18,6 +18,8 @@
 #include <iostream>
 #include <future>
 #include <chrono>
+#include <unordered_map>
+#include <array>
 
 #include <vortex.h>
 #include <utils.h>

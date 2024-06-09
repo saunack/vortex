@@ -29,6 +29,7 @@
 #include <algorithm>
 #include <memory>
 #include <list>
+#include <array>
 
 #include <VX_config.h>
 #include <VX_types.h>
