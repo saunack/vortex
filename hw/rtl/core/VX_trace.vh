@@ -141,6 +141,8 @@
                     `INST_LSU_LD: `TRACE(level, ("FLD"));
                     `INST_LSU_SW: `TRACE(level, ("FSW"));
                     `INST_LSU_SD: `TRACE(level, ("FSD"));
+                    `INST_AMO_LR: `TRACE(level, ("FLL"));
+                    `INST_AMO_SC: `TRACE(level, ("FSC"));
                     default:      `TRACE(level, ("?"));
                 endcase
             end else begin
@@ -156,6 +158,8 @@
                     `INST_LSU_SH: `TRACE(level, ("SH"));
                     `INST_LSU_SW: `TRACE(level, ("SW"));
                     `INST_LSU_SD: `TRACE(level, ("SD"));
+                    `INST_AMO_LR: `TRACE(level, ("LL"));
+                    `INST_AMO_SC: `TRACE(level, ("SC"));
                     `INST_LSU_FENCE:`TRACE(level,("FENCE"));
                     default:      `TRACE(level, ("?"));
                 endcase
