@@ -357,9 +357,10 @@ module VX_decode import VX_gpu_pkg::*; #(
                 ex_type = `EX_LSU;
                 // not sure about these values
                 op_type = `INST_OP_BITS'({1'b0, func3});
+                op_args.lsu.is_store = 0;
+                op_args.lsu.is_float = opcode[2];
+                op_args.lsu.offset = u_12;
                 use_rd  = 1;
-                imm     = {{(`XLEN-12){u_12[11]}}, u_12};
-                use_imm = 1;
             `ifdef EXT_F_ENABLE
                 if (opcode[2]) begin
                     `USED_FREG (rd);
@@ -389,8 +390,9 @@ module VX_decode import VX_gpu_pkg::*; #(
                 ex_type = `EX_LSU;
                 // not sure about these values
                 op_type = `INST_OP_BITS'({1'b1, func3});
-                imm     = {{(`XLEN-12){s_imm[11]}}, s_imm};
-                use_imm = 1;
+                op_args.lsu.is_store = 1;
+                op_args.lsu.is_float = opcode[2];
+                op_args.lsu.offset = s_imm;
                 `USED_IREG (rs1);
             `ifdef EXT_F_ENABLE
                 if (opcode[2]) begin
