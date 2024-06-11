@@ -207,9 +207,6 @@
 `define INST_FMT_HU          3'b101
 `define INST_FMT_WU          3'b110
 
-// `define INST_LSU_LR          4'b0000
-// `define INST_AMO_SC          4'b0001
-
 `define INST_LSU_LB          4'b0000
 `define INST_LSU_LH          4'b0001
 `define INST_LSU_LW          4'b0010
@@ -222,6 +219,8 @@
 `define INST_LSU_SW          4'b1010
 `define INST_LSU_SD          4'b1011 // new for RV64I SD
 `define INST_LSU_FENCE       4'b1111
+`define INST_AMO_LR          4'b1100
+`define INST_AMO_SC          4'b1101
 `define INST_LSU_BITS        4
 `define INST_LSU_FMT(op)     op[2:0]
 `define INST_LSU_WSIZE(op)   op[1:0]
