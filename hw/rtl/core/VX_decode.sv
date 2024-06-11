@@ -474,6 +474,46 @@ module VX_decode import VX_gpu_pkg::*; #(
                 endcase
             end
         `endif
+            `INST_EXT1: begin
+                case (func7)
+                    7'h00: begin
+                        ex_type = `EX_SFU;
+                        is_wstall = 1;
+                        case (func3)
+                            3'h0: begin // TMC
+                                op_type = `INST_OP_BITS'(`INST_SFU_TMC);
+                                `USED_IREG (rs1);
+                            end
+                            3'h1: begin // WSPAWN
+                                op_type = `INST_OP_BITS'(`INST_SFU_WSPAWN);
+                                `USED_IREG (rs1);
+                                `USED_IREG (rs2);
+                            end
+                            3'h2: begin // SPLIT
+                                op_type = `INST_OP_BITS'(`INST_SFU_SPLIT);
+                                use_rd    = 1;
+                                op_args.wctl.is_neg = rs2[0];
+                                `USED_IREG (rs1);
+                                `USED_IREG (rd);
+                            end
+                            3'h3: begin // JOIN
+                                op_type = `INST_OP_BITS'(`INST_SFU_JOIN);
+                                `USED_IREG (rs1);
+                            end
+                            3'h4: begin // BAR
+                                op_type = `INST_OP_BITS'(`INST_SFU_BAR);
+                                `USED_IREG (rs1);
+                                `USED_IREG (rs2);
+                            end
+                            3'h5: begin // PRED
+                                op_type = `INST_OP_BITS'(`INST_SFU_PRED);
+                                op_args.wctl.is_neg = rd[0];
+                                `USED_IREG (rs1);
+                                `USED_IREG (rs2);
+                            end
+                            default:;
+                        endcase
+                    end
                     // 7'h01: begin
                     //     case (func3)
                     //         3'h0: begin // DOT8
