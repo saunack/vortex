@@ -534,6 +534,7 @@ module VX_decode import VX_gpu_pkg::*; #(
                                 op_type = `INST_OP_BITS'(`INST_AMO_LR);
                                 op_args.lsu.is_store = 0;
                                 op_args.lsu.is_float = opcode[2];
+                                op_args.is_amo = 1;
                                 op_args.lsu.offset = u_12; //TODO: Check
                                 use_rd  = 1;
                                 `ifdef EXT_F_ENABLE
@@ -549,6 +550,7 @@ module VX_decode import VX_gpu_pkg::*; #(
                                 op_type = `INST_OP_BITS'(`INST_AMO_SC);
                                 op_args.lsu.is_store = 1;
                                 op_args.lsu.is_float = opcode[2];
+                                op_args.is_amo = 1;
                                 op_args.lsu.offset = s_imm; //TODO: Check
                                 `USED_IREG (rs1);
                             `ifdef EXT_F_ENABLE
