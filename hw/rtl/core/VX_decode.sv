@@ -353,42 +353,11 @@ module VX_decode import VX_gpu_pkg::*; #(
                 `USED_IREG (rd);
                 `USED_IREG (rs1);
             end
-            `INST_AMO_LR: begin
-                ex_type = `EX_LSU;
-                // not sure about these values
-                op_type = `INST_OP_BITS'({1'b0, func3});
-                op_args.lsu.is_store = 0;
-                op_args.lsu.is_float = opcode[2];
-                op_args.lsu.offset = u_12;
-                use_rd  = 1;
-            `ifdef EXT_F_ENABLE
-                if (opcode[2]) begin
-                    `USED_FREG (rd);
-                end else
-            `endif
-                `USED_IREG (rd);
-                `USED_IREG (rs1);
-            end
         `ifdef EXT_F_ENABLE
             `INST_FS,
         `endif
             `INST_S: begin
                 ex_type = `EX_LSU;
-                op_type = `INST_OP_BITS'({1'b1, func3});
-                op_args.lsu.is_store = 1;
-                op_args.lsu.is_float = opcode[2];
-                op_args.lsu.offset = s_imm;
-                `USED_IREG (rs1);
-            `ifdef EXT_F_ENABLE
-                if (opcode[2]) begin
-                    `USED_FREG (rs2);
-                end else
-            `endif
-                `USED_IREG (rs2);
-            end
-            `INST_AMO_SC: begin
-                ex_type = `EX_LSU;
-                // not sure about these values
                 op_type = `INST_OP_BITS'({1'b1, func3});
                 op_args.lsu.is_store = 1;
                 op_args.lsu.is_float = opcode[2];
@@ -558,7 +527,43 @@ module VX_decode import VX_gpu_pkg::*; #(
                             default:;
                         endcase
                     end
-                    default:;
+                    default: begin
+                        case (func3)
+                            3'h0: begin
+                        // `INST_AMO_LR: begin
+                            ex_type = `EX_LSU;
+                            // not sure about these values
+                            // op_type = `INST_OP_BITS'({1'b0, func3});
+                            op_args.lsu.is_store = 0;
+                            // op_args.lsu.is_float = opcode[2];
+                            op_args.lsu.offset = u_12;
+                            use_rd  = 1;
+                            `ifdef EXT_F_ENABLE
+                                if (opcode[2]) begin
+                                    `USED_FREG (rd);
+                                end else
+                            `endif
+                                `USED_IREG (rd);
+                                `USED_IREG (rs1);
+                            end
+                            3'h1: `INST_AMO_SC: begin
+                                ex_type = `EX_LSU;
+                                // not sure about these values
+                                op_type = `INST_OP_BITS'({1'b1, func3});
+                                op_args.lsu.is_store = 1;
+                                // op_args.lsu.is_float = opcode[2];
+                                op_args.lsu.offset = s_imm;
+                                `USED_IREG (rs1);
+                            `ifdef EXT_F_ENABLE
+                                if (opcode[2]) begin
+                                    `USED_FREG (rs2);
+                                end else
+                            `endif
+                                `USED_IREG (rs2);
+                            end
+                            default;;
+                        endcase
+                        default:;
                 endcase
             end
             default:;
