@@ -241,6 +241,17 @@ inline int vx_dot8(int a, int b) {
     return ret;
 }
 
+inline int vx_amo_add(int a, int b) {
+    size_t ret;
+    // b=1;
+    asm volatile (".insn sb %1, 0, %0, %2, 0" : "=r"(ret) : "i"(RISCV_CUSTOM0), "r"(a));
+    asm volatile (".insn r %1, 3, 3, %0, %2, %3" : "=r"(ret) : "i"(0x33), "r"(a), "r"(b));
+    // asm volatile (".insn r %1, 3, 3, %0, %2, %3" : "=r"(ret) : "i"(0x33), "r"(a), "r"(b));
+    asm volatile (".insn sb %1, 1, %2, %0, 0" : "=r"(ret) : "i"(RISCV_CUSTOM0), "r"(a));
+    return ret;
+}
+
+
 #ifdef __cplusplus
 }
 #endif
