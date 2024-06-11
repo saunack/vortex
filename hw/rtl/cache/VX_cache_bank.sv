@@ -242,7 +242,7 @@ module VX_cache_bank #(
     wire [NUM_WAYS-1:0] tag_matches_st0, tag_matches_st1;
     wire [NUM_WAYS-1:0] way_sel_st0, way_sel_st1;
     
-    // wire is_amo = (mem_req_atype[`ADDR_TYPE_AMO] == 1);
+    wire is_amo = (mem_req_atype[`ADDR_TYPE_AMO] == 1);
 
     `RESET_RELAY (tag_reset, reset);
 

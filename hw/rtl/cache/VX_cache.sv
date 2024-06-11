@@ -163,7 +163,7 @@ module VX_cache import VX_gpu_pkg::*; #(
         .ready_out (mem_bus_if.req_ready)
     );
     
-    assign req_data_amo = mem_bus_if.req_data.atype
+    assign req_data_amo = mem_bus_if.req_data.atype;
     // assign mem_bus_if.req_data.atype = '0;
 
     ///////////////////////////////////////////////////////////////////////////
