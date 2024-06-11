@@ -514,45 +514,42 @@ module VX_decode import VX_gpu_pkg::*; #(
                             default:;
                         endcase
                     end
-                    7'h01: begin
-                        case (func3)
-                            3'h0: begin // DOT8
-                                ex_type = `EX_ALU;
-                                op_type = `INST_OP_BITS'(`INST_ALU_DOT8);
-                                use_rd = 1;
-                                `USED_IREG (rd);
-                                `USED_IREG (rs1);
-                                `USED_IREG (rs2);
-                            end
-                            default:;
-                        endcase
-                    end
+                    // 7'h01: begin
+                    //     case (func3)
+                    //         3'h0: begin // DOT8
+                    //             ex_type = `EX_ALU;
+                    //             op_type = `INST_OP_BITS'(`INST_ALU_DOT8);
+                    //             use_rd = 1;
+                    //             `USED_IREG (rd);
+                    //             `USED_IREG (rs1);
+                    //             `USED_IREG (rs2);
+                    //         end
+                    //         default:;
+                    //     endcase
+                    // end
                     default: begin
                         case (func3)
                             3'h0: begin
-                        // `INST_AMO_LR: begin
-                            ex_type = `EX_LSU;
-                            // not sure about these values
-                            // op_type = `INST_OP_BITS'({1'b0, func3});
-                            op_args.lsu.is_store = 0;
-                            // op_args.lsu.is_float = opcode[2];
-                            op_args.lsu.offset = u_12;
-                            use_rd  = 1;
-                            `ifdef EXT_F_ENABLE
-                                if (opcode[2]) begin
-                                    `USED_FREG (rd);
-                                end else
-                            `endif
-                                `USED_IREG (rd);
-                                `USED_IREG (rs1);
-                            end
-                            3'h1: `INST_AMO_SC: begin
                                 ex_type = `EX_LSU;
-                                // not sure about these values
-                                op_type = `INST_OP_BITS'({1'b1, func3});
+                                op_type = `INST_OP_BITS'(`INST_AMO_LR);
+                                op_args.lsu.is_store = 0;
+                                op_args.lsu.is_float = opcode[2];
+                                op_args.lsu.offset = u_12; //TODO: Check
+                                use_rd  = 1;
+                                `ifdef EXT_F_ENABLE
+                                    if (opcode[2]) begin
+                                        `USED_FREG (rd);
+                                    end else
+                                `endif
+                                    `USED_IREG (rd);
+                                    `USED_IREG (rs1);
+                            end
+                            3'h1: begin
+                                ex_type = `EX_LSU;
+                                op_type = `INST_OP_BITS'(`INST_AMO_SC);
                                 op_args.lsu.is_store = 1;
-                                // op_args.lsu.is_float = opcode[2];
-                                op_args.lsu.offset = s_imm;
+                                op_args.lsu.is_float = opcode[2];
+                                op_args.lsu.offset = s_imm; //TODO: Check
                                 `USED_IREG (rs1);
                             `ifdef EXT_F_ENABLE
                                 if (opcode[2]) begin
@@ -561,9 +558,9 @@ module VX_decode import VX_gpu_pkg::*; #(
                             `endif
                                 `USED_IREG (rs2);
                             end
-                            default;;
+                            default:;
                         endcase
-                        default:;
+                    end
                 endcase
             end
             default:;

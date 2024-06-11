@@ -74,7 +74,7 @@ module VX_lsu_slice import VX_gpu_pkg::*; #(
         assign mem_req_atype[i][`ADDR_TYPE_FLUSH] = req_is_fence;
         assign mem_req_atype[i][`ADDR_TYPE_IO] = (block_addr >= io_addr_start);
         // is AMO address
-        assign mem_req_atype[i][`ADDR_TYPE_AMO] = (data.op_args.lsu.is_amo)
+        assign mem_req_atype[i][`ADDR_TYPE_AMO] = (data.op_args.lsu.is_amo);
     `ifdef LMEM_ENABLE
         // is local memory address
         wire [MEM_ADDRW-1:0] lmem_addr_start = MEM_ADDRW'(`XLEN'(`LMEM_BASE_ADDR) >> MEM_ASHIFT);
