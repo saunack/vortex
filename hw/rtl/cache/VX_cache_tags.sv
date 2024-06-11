@@ -46,7 +46,8 @@ module VX_cache_tags #(
     output wire [NUM_WAYS-1:0]          way_sel,
     output wire [NUM_WAYS-1:0]          tag_matches,
     // AMO single bit implementation
-    input wire                          amo_reserve
+    input wire                          amo_reserve,
+    output wire [NUM_WAYS-1:0]          amo_valid
 );
     `UNUSED_SPARAM (INSTANCE_ID)
     `UNUSED_PARAM (BANK_ID)
@@ -79,6 +80,7 @@ module VX_cache_tags #(
 
     for (genvar i = 0; i < NUM_WAYS; ++i) begin
         wire [`CS_TAG_SEL_BITS-1:0] read_tag;
+        wire amo_status;
         wire read_valid;
 
         // single port RAM
@@ -93,10 +95,13 @@ module VX_cache_tags #(
             `UNUSED_PIN (wren),                
             .addr  (line_sel),
             .wdata ({~init, amo_reserve, line_tag}), 
-            .rdata ({read_valid, read_tag})
+            .rdata ({read_valid, amo_status, read_tag})
         );
         
         assign tag_matches[i] = read_valid && (line_tag == read_tag);
+        // an atomic write will fail if a non-atomic request accesses reserved data,
+        // or atomic store into non-reserved data
+        assign amo_valid[i] = tag_matches[i] && (amo_status == amo_reserve);
     end
     
 `ifdef DBG_TRACE_CACHE

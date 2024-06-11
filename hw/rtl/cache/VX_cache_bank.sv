@@ -73,7 +73,7 @@ module VX_cache_bank #(
     input wire [WORD_SEL_WIDTH-1:0]     core_req_wsel,
     input wire [WORD_SIZE-1:0]          core_req_byteen,
     input wire [`CS_WORD_WIDTH-1:0]     core_req_data,
-    input wire [`ADDR_TYPE_WIDTH-1:0]   core_req_amo,
+    input wire [`ADDR_TYPE_WIDTH-1:0]   core_req_amo, // AMO identifier
     input wire [TAG_WIDTH-1:0]          core_req_tag,
     input wire [REQ_SEL_WIDTH-1:0]      core_req_idx,
     output wire                         core_req_ready,
@@ -93,7 +93,7 @@ module VX_cache_bank #(
     output wire [WORD_SIZE-1:0]         mem_req_byteen,
     output wire [`CS_WORD_WIDTH-1:0]    mem_req_data,
     output wire [MSHR_ADDR_WIDTH-1:0]   mem_req_id,
-    output wire [`ADDR_TYPE_WIDTH-1:0]  mem_req_atype,
+    // output wire [`ADDR_TYPE_WIDTH-1:0]  mem_req_atype,
     input  wire                         mem_req_ready,
 
     // Memory response
@@ -145,6 +145,7 @@ module VX_cache_bank #(
     wire [MSHR_ADDR_WIDTH-1:0]      mshr_alloc_id_st0;
     wire [MSHR_ADDR_WIDTH-1:0]      mshr_prev_st0, mshr_prev_st1;
     wire                            mshr_pending_st0, mshr_pending_st1;
+    wire [`ADDR_TYPE_WIDTH-1:0]     core_req_amo_st0;
 
     wire rdw_hazard_st0;
     reg rdw_hazard_st1;
@@ -202,7 +203,7 @@ module VX_cache_bank #(
     end
 
     VX_pipe_register #(
-        .DATAW  (1 + 1 + 1 + 1 + 1 + `CS_LINE_ADDR_WIDTH + `CS_LINE_WIDTH + 1 + WORD_SIZE + WORD_SEL_WIDTH + REQ_SEL_WIDTH + TAG_WIDTH + MSHR_ADDR_WIDTH),
+        .DATAW  (1 + 1 + 1 + 1 + 1 + `CS_LINE_ADDR_WIDTH + `CS_LINE_WIDTH + 1 + WORD_SIZE + WORD_SEL_WIDTH + REQ_SEL_WIDTH + TAG_WIDTH + MSHR_ADDR_WIDTH + `ADDR_TYPE_WIDTH),
         .RESETW (1)
     ) pipe_reg0 (
         .clk      (clk),
@@ -221,9 +222,10 @@ module VX_cache_bank #(
             replay_valid ? replay_wsel : core_req_wsel,
             replay_valid ? replay_idx : core_req_idx,
             replay_valid ? replay_tag : core_req_tag,
-            replay_id
+            replay_id,
+            core_req_amo
         }),
-        .data_out ({valid_st0, is_init_st0, is_replay_st0, is_fill_st0, is_creq_st0, addr_st0, data_st0, rw_st0, byteen_st0, wsel_st0, req_idx_st0, tag_st0, replay_id_st0})
+        .data_out ({valid_st0, is_init_st0, is_replay_st0, is_fill_st0, is_creq_st0, addr_st0, data_st0, rw_st0, byteen_st0, wsel_st0, req_idx_st0, tag_st0, replay_id_st0, core_req_amo_st0})
     );
 
     if (UUID_WIDTH != 0) begin
@@ -241,6 +243,11 @@ module VX_cache_bank #(
 
     wire [NUM_WAYS-1:0] tag_matches_st0, tag_matches_st1;
     wire [NUM_WAYS-1:0] way_sel_st0, way_sel_st1;
+    wire [NUM_WAYS-1:0] amo_valid_st0, amo_valid_st1;
+    wire is_amo_st0;
+    // unused is_amo_st1;
+    assign is_amo_st0 = (core_req_amo_st0[`ADDR_TYPE_AMO] == 1);
+    unused core_req_amo_st0[`ADDR_TYPE_AMO-1:0], core_req_amo_st0[`ADDR_TYPE_WIDTH-1:`ADDR_TYPE_AMO];
     
     wire is_amo = (mem_req_atype[`ADDR_TYPE_AMO] == 1);
 
@@ -270,20 +277,21 @@ module VX_cache_bank #(
         .init       (do_init_st0),
         .way_sel    (way_sel_st0),
         .tag_matches(tag_matches_st0),
-        .amo_reserve(is_amo)
+        .amo_reserve(is_amo_st0),
+        .amo_valid  (amo_valid_st0)
     );
 
     assign mshr_id_st0 = is_creq_st0 ? mshr_alloc_id_st0 : replay_id_st0;
 
     VX_pipe_register #(
-        .DATAW  (1 + 1 + 1 + 1 + 1 + `CS_LINE_ADDR_WIDTH + `CS_LINE_WIDTH + WORD_SIZE + WORD_SEL_WIDTH + REQ_SEL_WIDTH + TAG_WIDTH + MSHR_ADDR_WIDTH + MSHR_ADDR_WIDTH + NUM_WAYS + NUM_WAYS + 1),
+        .DATAW  (1 + 1 + 1 + 1 + 1 + `CS_LINE_ADDR_WIDTH + `CS_LINE_WIDTH + WORD_SIZE + WORD_SEL_WIDTH + REQ_SEL_WIDTH + TAG_WIDTH + MSHR_ADDR_WIDTH + MSHR_ADDR_WIDTH + NUM_WAYS + 1 + NUM_WAYS + 1),
         .RESETW (1)
     ) pipe_reg1 (
         .clk      (clk),
         .reset    (reset),
         .enable   (~pipe_stall),
-        .data_in  ({valid_st0, is_replay_st0, is_fill_st0, is_creq_st0, rw_st0, addr_st0, data_st0, byteen_st0, wsel_st0, req_idx_st0, tag_st0, mshr_id_st0, mshr_prev_st0, tag_matches_st0, way_sel_st0, mshr_pending_st0}),
-        .data_out ({valid_st1, is_replay_st1, is_fill_st1, is_creq_st1, rw_st1, addr_st1, data_st1, byteen_st1, wsel_st1, req_idx_st1, tag_st1, mshr_id_st1, mshr_prev_st1, tag_matches_st1, way_sel_st1, mshr_pending_st1})
+        .data_in  ({valid_st0, is_replay_st0, is_fill_st0, is_creq_st0, rw_st0, addr_st0, data_st0, byteen_st0, wsel_st0, req_idx_st0, tag_st0, mshr_id_st0, mshr_prev_st0, tag_matches_st0, amo_valid_st0, way_sel_st0, mshr_pending_st0}),
+        .data_out ({valid_st1, is_replay_st1, is_fill_st1, is_creq_st1, rw_st1, addr_st1, data_st1, byteen_st1, wsel_st1, req_idx_st1, tag_st1, mshr_id_st1, mshr_prev_st1, tag_matches_st1, amo_valid_st1, way_sel_st1, mshr_pending_st1})
     );
 
     // we have a tag hit
@@ -306,6 +314,7 @@ module VX_cache_bank #(
 
     wire do_write_hit_st1 = do_creq_wr_st1 && is_hit_st1;
     wire do_write_miss_st1= do_creq_wr_st1 && ~is_hit_st1;
+    wire atomic_blocked_st1 = do_write_hit_st1 && ~amo_valid_st1; // block normal write to an amo reserved location
 
     `UNUSED_VAR (do_write_miss_st1)
 
@@ -344,7 +353,7 @@ module VX_cache_bank #(
 
         .read       (do_read_hit_st1 || do_replay_rd_st1),
         .fill       (do_fill_st1),
-        .write      (do_write_hit_st1 || do_replay_wr_st1),
+        .write      ((do_write_hit_st1 || do_replay_wr_st1) && ~atomic_blocked_st1), // do not write if blocked by amo
         .way_sel    (way_sel_st1 | tag_matches_st1),
         .line_addr  (addr_st1),
         .wsel       (wsel_st1),

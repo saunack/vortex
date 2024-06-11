@@ -147,7 +147,7 @@
 `define INST_ALU_OR          4'b1101
 `define INST_ALU_XOR         4'b1110
 `define INST_ALU_SLL         4'b1111
-
+`define INST_ALU_DOT8        4'b0001
 
 `define ALU_TYPE_BITS        2
 `define ALU_TYPE_ARITH       0

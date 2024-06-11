@@ -78,7 +78,7 @@ module VX_cache import VX_gpu_pkg::*; #(
     localparam BANK_SEL_BITS   = `CLOG2(NUM_BANKS);
     localparam BANK_SEL_WIDTH  = `UP(BANK_SEL_BITS);
     localparam LINE_ADDR_WIDTH = (`CS_WORD_ADDR_WIDTH - BANK_SEL_BITS - WORD_SEL_BITS);
-    localparam CORE_REQ_DATAW  = LINE_ADDR_WIDTH + 1 + WORD_SEL_WIDTH + WORD_SIZE + WORD_WIDTH + TAG_WIDTH;
+    localparam CORE_REQ_DATAW  = LINE_ADDR_WIDTH + 1 + WORD_SEL_WIDTH + WORD_SIZE + WORD_WIDTH + TAG_WIDTH + `ADDR_TYPE_WIDTH;
     localparam CORE_RSP_DATAW  = WORD_WIDTH + TAG_WIDTH;
 
     localparam CORE_REQ_BUF_ENABLE = (NUM_BANKS != 1) || (NUM_REQS != 1);
@@ -95,6 +95,7 @@ module VX_cache import VX_gpu_pkg::*; #(
     wire [NUM_REQS-1:0]                     core_req_rw;    
     wire [NUM_REQS-1:0][WORD_SIZE-1:0]      core_req_byteen;
     wire [NUM_REQS-1:0][`CS_WORD_WIDTH-1:0] core_req_data;
+    wire [NUM_REQS-1:0][`ADDR_TYPE_WIDTH-1:0] core_req_atype; // atype for amo
     wire [NUM_REQS-1:0][TAG_WIDTH-1:0]      core_req_tag;
     wire [NUM_REQS-1:0]                     core_req_ready;
 
@@ -104,6 +105,7 @@ module VX_cache import VX_gpu_pkg::*; #(
         assign core_req_byteen[i] = core_bus_if[i].req_data.byteen;
         assign core_req_addr[i]   = core_bus_if[i].req_data.addr;
         assign core_req_data[i]   = core_bus_if[i].req_data.data;
+        assign core_req_atype[i]  = core_bus_if[i].req_data.atype;
         assign core_req_tag[i]    = core_bus_if[i].req_data.tag;
         assign core_bus_if[i].req_ready = core_req_ready[i];
         `UNUSED_VAR (core_bus_if[i].req_data.atype)
@@ -163,8 +165,7 @@ module VX_cache import VX_gpu_pkg::*; #(
         .ready_out (mem_bus_if.req_ready)
     );
     
-    assign req_data_amo = mem_bus_if.req_data.atype;
-    // assign mem_bus_if.req_data.atype = '0;
+    assign mem_bus_if.req_data.atype = '0;
 
     ///////////////////////////////////////////////////////////////////////////
 
@@ -236,7 +237,7 @@ module VX_cache import VX_gpu_pkg::*; #(
     wire [NUM_BANKS-1:0][`CS_WORD_WIDTH-1:0]    per_bank_mem_req_data;
     wire [NUM_BANKS-1:0][MSHR_ADDR_WIDTH-1:0]   per_bank_mem_req_id;
     wire [NUM_BANKS-1:0]                        per_bank_mem_req_ready;
-    wire [NUM_BANKS-1:0][`ADDR_TYPE_WIDTH-1:0]  per_bank_mem_req_atype;              
+    // wire [NUM_BANKS-1:0][`ADDR_TYPE_WIDTH-1:0]  per_bank_mem_req_atype;              
 
     wire [NUM_BANKS-1:0]                        per_bank_mem_rsp_ready;
     
@@ -253,6 +254,7 @@ module VX_cache import VX_gpu_pkg::*; #(
     wire [NUM_REQS-1:0][LINE_ADDR_WIDTH-1:0] core_req_line_addr;
     wire [NUM_REQS-1:0][BANK_SEL_WIDTH-1:0]  core_req_bid;
     wire [NUM_REQS-1:0][WORD_SEL_WIDTH-1:0]  core_req_wsel;
+    // wire [NUM_REQS-1:0][`ADDR_TYPE_WIDTH-1:0] core_req_data_atype; // additional wire for AMO
 
     for (genvar i = 0; i < NUM_REQS; ++i) begin
         if (WORDS_PER_LINE > 1) begin
@@ -278,6 +280,7 @@ module VX_cache import VX_gpu_pkg::*; #(
             core_req_wsel[i],
             core_req_byteen[i],            
             core_req_data[i],
+            core_req_atype[i], // amo
             core_req_tag[i]};
     end
 
@@ -318,6 +321,7 @@ module VX_cache import VX_gpu_pkg::*; #(
             per_bank_core_req_wsel[i],
             per_bank_core_req_byteen[i],            
             per_bank_core_req_data[i],
+            per_bank_core_req_atype[i], // amo
             per_bank_core_req_tag[i]} = core_req_data_out[i];
     end
     
@@ -388,7 +392,7 @@ module VX_cache import VX_gpu_pkg::*; #(
             .mem_req_byteen     (per_bank_mem_req_byteen[i]),
             .mem_req_data       (per_bank_mem_req_data[i]),
             .mem_req_id         (per_bank_mem_req_id[i]),
-            .mem_req_atype      (per_bank_mem_req_atype[i]),
+            // .mem_req_atype      (per_bank_mem_req_atype[i]),
             .mem_req_ready      (per_bank_mem_req_ready[i]),
 
             // Memory response
@@ -450,12 +454,14 @@ module VX_cache import VX_gpu_pkg::*; #(
     wire [WORD_SEL_WIDTH-1:0]   mem_req_wsel_p;
     wire [WORD_SIZE-1:0]        mem_req_byteen_p;
     wire [`CS_WORD_WIDTH-1:0]   mem_req_data_p;
+    // wire [`ADDR_TYPE_WIDTH-1:0] mem_req_atype_p; // amo
     wire [MEM_TAG_WIDTH-1:0]    mem_req_tag_p;
     wire [MSHR_ADDR_WIDTH-1:0]  mem_req_id_p;
     wire                        mem_req_ready_p;
 
     // Memory request arbitration
 
+    // wire [NUM_BANKS-1:0][(`CS_MEM_ADDR_WIDTH + MSHR_ADDR_WIDTH + 1 + WORD_SIZE + WORD_SEL_WIDTH + `CS_WORD_WIDTH + `ADDR_TYPE_WIDTH)-1:0] data_in;
     wire [NUM_BANKS-1:0][(`CS_MEM_ADDR_WIDTH + MSHR_ADDR_WIDTH + 1 + WORD_SIZE + WORD_SEL_WIDTH + `CS_WORD_WIDTH)-1:0] data_in;
 
     for (genvar i = 0; i < NUM_BANKS; ++i) begin
@@ -464,6 +470,7 @@ module VX_cache import VX_gpu_pkg::*; #(
                              per_bank_mem_req_wsel[i], 
                              per_bank_mem_req_byteen[i],                              
                              per_bank_mem_req_data[i],
+                            //  per_bank_mem_req_atype[i], // amo
                              per_bank_mem_req_id[i]};
     end
 
@@ -477,6 +484,7 @@ module VX_cache import VX_gpu_pkg::*; #(
         .valid_in  (per_bank_mem_req_valid),
         .ready_in  (per_bank_mem_req_ready),
         .data_in   (data_in),
+        // .data_out  ({mem_req_addr_p, mem_req_rw_p, mem_req_wsel_p, mem_req_byteen_p, mem_req_data_p, mem_req_atype_p, mem_req_id_p}),
         .data_out  ({mem_req_addr_p, mem_req_rw_p, mem_req_wsel_p, mem_req_byteen_p, mem_req_data_p, mem_req_id_p}),
         .valid_out (mem_req_valid_p),
         .ready_out (mem_req_ready_p),

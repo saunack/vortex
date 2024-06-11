@@ -27,6 +27,7 @@ detect_osversion() {
                     bionic) osdir="ubuntu/bionic";;
                     focal) osdir="ubuntu/focal";;
                     jammy) osdir="ubuntu/focal";;
+                    # Add new versions as needed
                 esac
                 ;;
             centos)
