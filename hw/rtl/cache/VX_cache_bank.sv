@@ -247,9 +247,9 @@ module VX_cache_bank #(
     wire is_amo_st0;
     // unused is_amo_st1;
     assign is_amo_st0 = (core_req_amo_st0[`ADDR_TYPE_AMO] == 1);
-    unused core_req_amo_st0[`ADDR_TYPE_AMO-1:0], core_req_amo_st0[`ADDR_TYPE_WIDTH-1:`ADDR_TYPE_AMO];
-    
-    wire is_amo = (mem_req_atype[`ADDR_TYPE_AMO] == 1);
+    wire [`ADDR_TYPE_WIDTH-1:0] amo_dump = core_req_amo_st0;
+    `UNUSED_VAR (amo_dump);
+    // unused core_req_amo_st0[`ADDR_TYPE_AMO-1:0], core_req_amo_st0[`ADDR_TYPE_WIDTH-1:`ADDR_TYPE_AMO];
 
     `RESET_RELAY (tag_reset, reset);
 
