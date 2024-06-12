@@ -559,6 +559,8 @@ module VX_decode import VX_gpu_pkg::*; #(
                                 end else
                             `endif
                                 `USED_IREG (rs2);
+                                `USED_IREG (rd);
+                                `USED_IREG (rs1);
                             end
                             default:;
                         endcase
