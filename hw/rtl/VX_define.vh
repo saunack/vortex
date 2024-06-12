@@ -78,7 +78,6 @@
 `define SFU_WIDTH       `UP(`SFU_BITS)
 
 ///////////////////////////////////////////////////////////////////////////////
-
 `define INST_LUI        7'b0110111
 `define INST_AUIPC      7'b0010111
 `define INST_JAL        7'b1101111
@@ -108,6 +107,7 @@
 `define INST_EXT2       7'b0101011 // 0x2B
 `define INST_EXT3       7'b1011011 // 0x5B
 `define INST_EXT4       7'b1111011 // 0x7B
+`define INST_AMO        7'b0101111
 
 // Opcode extensions
 `define INST_R_F7_MUL   7'b0000001
