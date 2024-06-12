@@ -105,12 +105,9 @@
 
 // Custom extension opcodes
 `define INST_EXT1       7'b0001011 // 0x0B
-// `define INST_EXT2       7'b0101011 // 0x2B
-`define INST_AMO_LR       7'b0101011 // 0x2B
-// `define INST_EXT3       7'b1011011 // 0x5B
-`define INST_AMO_SC       7'b1011011 // 0x5B
+`define INST_EXT2       7'b0101011 // 0x2B
+`define INST_EXT3       7'b1011011 // 0x5B
 `define INST_EXT4       7'b1111011 // 0x7B
-// `define INST_AMO_SC       7'b1111011 // 0x7B
 
 // Opcode extensions
 `define INST_R_F7_MUL   7'b0000001
@@ -163,9 +160,6 @@
 `define INST_ALU_SIGNED(op)  op[0]
 `define INST_ALU_IS_SUB(op)  op[1]
 `define INST_ALU_IS_CZERO(op) (op[3:1] == 3'b101)
-
-// `define INST_AMO_LR          4'b0000
-// `define INST_AMO_SC          4'b0001
 
 `define INST_BR_EQ           4'b0000
 `define INST_BR_NE           4'b0010
