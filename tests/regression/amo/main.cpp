@@ -41,7 +41,7 @@ public:
     return true;
   }
 };
-
+/*
 template <>
 class Comparator<float> {
 private:
@@ -68,6 +68,7 @@ public:
     return true;
   }
 };
+*/
 
 const char* kernel_file = "kernel.vxbin";
 uint32_t size = 16;

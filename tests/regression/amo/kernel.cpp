@@ -2,14 +2,16 @@
 #include <vx_intrinsics.h>
 #include <vx_spawn.h>
 #include "common.h"
-// #include <vx_print.h>
+#include <vx_print.h>
 
 void kernel_body(int task_id, kernel_arg_t* __UNIFORM__ arg) {
 	auto src0_ptr = reinterpret_cast<TYPE*>(arg->src0_addr);
 	auto src1_ptr = reinterpret_cast<TYPE*>(arg->src1_addr);
 	auto dst_ptr  = reinterpret_cast<TYPE*>(arg->dst_addr);
 
+	// dst_ptr[task_id] = vx_amo_add(src0_ptr+task_id,src1_ptr+task_id);
 	dst_ptr[task_id] = vx_amo_add(src0_ptr[task_id],src1_ptr[task_id]);
+	vx_printf("%d %d %d %d\n",*(src0_ptr+task_id),*(src1_ptr+task_id),src0_ptr[task_id]+src1_ptr[task_id],dst_ptr[task_id]);
 }
 
 int main() {
