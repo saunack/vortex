@@ -242,13 +242,17 @@ inline int vx_dot8(int a, int b) {
 }
 
 inline int vx_amo_add(int a, int b) {
+    // asm volatile (".insn i %1, 2, %0, %2, 0" : "=r"(ll_r) : "i"(0x03), "r"(&a)); // LD.W
+
+    size_t ll_r;
+    asm volatile (".insn r %1, 0x2, 8, %0, %2, x0" : "=r"(ll_r) : "i"(0x2f), "r"(&a));
+    size_t temp;
+    asm volatile (".insn r %1, 0, 0, %0, %2, %3" : "=r"(temp) : "i"(0x33), "r"(ll_r), "r"(b): "memory");
     size_t ret;
-    // asm volatile (".insn r %1, 0, 2, %0, %2, x0" : "=r"(ret) : "i"(RISCV_CUSTOM0), "m"(a)); // insn sb
-    // asm volatile (".insn i %1, 0, %0, %2, 0" : "=r"(ret) : "i"(RISCV_CUSTOM0), "r"(&a));
-    asm volatile (".insn i %1, 2, %0, %2, 0" : "=r"(ret) : "i"(0x03), "r"(&a));
-    // asm volatile ("movl %0 %1" : "=r"(ret) : "m"(a));
-    asm volatile (".insn r %1, 0, 0, %0, %2, %3" : "=r"(ret) : "i"(0x33), "r"(ret), "r"(b));
-    // asm volatile (".insn r %1, 1, 2, %0, %2, %3" : "=r"(ret) : "i"(RISCV_CUSTOM0), "r"(a), "r"(b)); // insn sb
+    asm volatile (".insn r %1, 0x2, 12, %0, %2, %3" : "=r"(ret) : "i"(0x2f), "r"(&a), "r"(&temp): "memory");
+
+    // size_t ret;
+    // asm volatile (".insn r %1, 0x2, 0, %0, %2, %3" : "=r"(ret) : "i"(0x2f), "r"(&a), "r"(b));
     return ret;
 }
 
