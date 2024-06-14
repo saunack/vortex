@@ -2,7 +2,7 @@ ROOT_DIR := $(realpath ../..)
 include $(ROOT_DIR)/config.mk
 
 all:
-	$(MAKE) -C vecadd
+	# $(MAKE) -C vecadd
 	$(MAKE) -C sgemm
 	$(MAKE) -C conv3
 	$(MAKE) -C psort
@@ -24,7 +24,7 @@ all:
 	$(MAKE) -C psum
 
 run-simx:
-	$(MAKE) -C vecadd run-simx
+	# $(MAKE) -C vecadd run-simx
 	$(MAKE) -C sgemm run-simx
 	$(MAKE) -C conv3 run-simx
 	$(MAKE) -C psort run-simx
@@ -46,7 +46,7 @@ run-simx:
 	$(MAKE) -C psum run-simx
 
 run-rtlsim:
-	$(MAKE) -C vecadd run-rtlsim
+	# $(MAKE) -C vecadd run-rtlsim
 	$(MAKE) -C sgemm run-rtlsim
 	$(MAKE) -C conv3 run-rtlsim
 	$(MAKE) -C psort run-rtlsim
@@ -68,7 +68,7 @@ run-rtlsim:
 	$(MAKE) -C psum run-rtlsim
 
 run-opae:
-	$(MAKE) -C vecadd run-opae
+	# $(MAKE) -C vecadd run-opae
 	$(MAKE) -C sgemm run-opae
 	$(MAKE) -C conv3 run-opae
 	$(MAKE) -C psort run-opae
