@@ -52,7 +52,7 @@ module VX_cache_tags #(
     `UNUSED_SPARAM (INSTANCE_ID)
     `UNUSED_PARAM (BANK_ID)
     `UNUSED_VAR (reset)
-    `UNUSED_VAR (lookup)
+    // `UNUSED_VAR (lookup)
 
     // localparam TAG_WIDTH = 1 + `CS_TAG_SEL_BITS;
     localparam TAG_WIDTH = 1 + 1 + `CS_TAG_SEL_BITS; // extra bit for amo_reserve
@@ -101,22 +101,20 @@ module VX_cache_tags #(
         assign tag_matches[i] = read_valid && (line_tag == read_tag);
         // an atomic write will fail if a non-atomic request accesses reserved data,
         // or atomic store into non-reserved data
-        assign amo_valid[i] = tag_matches[i] && (amo_status == amo_reserve);
-        // if (tag_matches[i] && amo_reserve == 1) begin
-        //     VX_sp_ram #(
-        //         .DATAW (TAG_WIDTH),
-        //         .SIZE  (`CS_LINES_PER_BANK),
-        //         .NO_RWCHECK (1)
-        //         ) amo_store (
-        //         .clk   (clk),
-        //         .read  (1'b0),
-        //         .write (1'b1),
-        //         `UNUSED_PIN (wren),                
-        //         .addr  (line_sel),
-        //         .wdata ({~init, amo_reserve, line_tag}), 
-        //         .rdata ({read_valid, amo_status, read_tag})
-        //     );
-        // end
+        assign amo_valid[i] = lookup && tag_matches[i] && (amo_status == amo_reserve);
+        VX_sp_ram #(
+            .DATAW (TAG_WIDTH),
+            .SIZE  (`CS_LINES_PER_BANK),
+            .NO_RWCHECK (0)
+            ) amo_store (
+            .clk   (clk),
+            .read  (1'b0),
+            .write ((tag_matches[i] == 1) && (amo_reserve == 1)),
+            `UNUSED_PIN (wren),                
+            .addr  (line_sel),
+            .wdata ({~init, amo_reserve, line_tag}), 
+            .rdata ({read_valid, amo_status, read_tag})
+        );
     end
     
 `ifdef DBG_TRACE_CACHE

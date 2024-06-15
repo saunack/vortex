@@ -448,9 +448,9 @@ module VX_cache_bank #(
     wire [REQ_SEL_WIDTH-1:0] crsq_idx;
     wire [TAG_WIDTH-1:0] crsq_tag;
 
-    assign crsq_valid = do_read_hit_st1 || do_replay_rd_st1;
+    assign crsq_valid = do_creq_rd_st1 ? (do_read_hit_st1 || do_replay_rd_st1) : ~atomic_blocked_st1;
+    assign crsq_data = do_creq_rd_st1 ? read_data_st1 : {{(`CS_WORD_WIDTH-1){1'b0}}, ~amo_valid_st1};
     assign crsq_idx   = req_idx_st1;
-    assign crsq_data  = read_data_st1;
     assign crsq_tag   = tag_st1;
 
     `RESET_RELAY (crsp_reset, reset);
